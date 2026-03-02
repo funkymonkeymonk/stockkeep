@@ -1,4 +1,4 @@
-package com.funkymonkey.stockkeep.viewmodel
+package com.meepleprofessionals.stockkeep.viewmodel
 
 import android.app.Application
 import android.content.Intent
@@ -7,9 +7,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.funkymonkey.stockkeep.StockKeepApplication
-import com.funkymonkey.stockkeep.data.model.StockItem
-import com.funkymonkey.stockkeep.data.repository.StockRepository
+import com.meepleprofessionals.stockkeep.StockKeepApplication
+import com.meepleprofessionals.stockkeep.data.model.StockItem
+import com.meepleprofessionals.stockkeep.data.repository.StockRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

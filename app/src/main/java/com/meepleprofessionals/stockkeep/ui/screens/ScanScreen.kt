@@ -1,4 +1,4 @@
-package com.funkymonkey.stockkeep.ui.screens
+package com.meepleprofessionals.stockkeep.ui.screens
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -44,7 +44,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.funkymonkey.stockkeep.viewmodel.StockViewModel
+import com.meepleprofessionals.stockkeep.viewmodel.StockViewModel
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import java.util.concurrent.Executors

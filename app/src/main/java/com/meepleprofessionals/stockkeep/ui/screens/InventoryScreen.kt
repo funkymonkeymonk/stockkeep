@@ -1,4 +1,4 @@
-package com.funkymonkey.stockkeep.ui.screens
+package com.meepleprofessionals.stockkeep.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -45,10 +46,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.funkymonkey.stockkeep.data.model.StockItem
-import com.funkymonkey.stockkeep.viewmodel.ExportStatus
-import com.funkymonkey.stockkeep.viewmodel.ScanResult
-import com.funkymonkey.stockkeep.viewmodel.StockViewModel
+import com.meepleprofessionals.stockkeep.data.model.StockItem
+import com.meepleprofessionals.stockkeep.update.UpdateManager
+import com.meepleprofessionals.stockkeep.update.UpdateState
+import com.meepleprofessionals.stockkeep.viewmodel.ExportStatus
+import com.meepleprofessionals.stockkeep.viewmodel.ScanResult
+import com.meepleprofessionals.stockkeep.viewmodel.StockViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -80,6 +83,7 @@ fun InventoryScreen(
     val items by viewModel.allItems.collectAsState(initial = emptyList())
     val scanResult by viewModel.scanResult.collectAsState()
     val exportStatus by viewModel.exportStatus.collectAsState()
+    val updateState by UpdateManager.getInstance().updateState.collectAsState()
     var showDeleteConfirm by remember { mutableStateOf<StockItem?>(null) }
     var showEditDialog by remember { mutableStateOf<StockItem?>(null) }
 
@@ -186,6 +190,80 @@ fun InventoryScreen(
                 showEditDialog = null
             }
         )
+    }
+    
+    // Update dialogs
+    when (val state = updateState) {
+        is UpdateState.UpdateAvailable -> {
+            AlertDialog(
+                onDismissRequest = state.onDecline,
+                title = { Text("Update Available") },
+                text = { 
+                    Column {
+                        Text("Version ${state.versionCode} is available!")
+                        Text(state.releaseNotes)
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = state.onAccept) { Text("Update Now") }
+                },
+                dismissButton = {
+                    TextButton(onClick = state.onDecline) { Text("Later") }
+                }
+            )
+        }
+        is UpdateState.Downloading -> {
+            AlertDialog(
+                onDismissRequest = { },
+                title = { Text("Downloading Update") },
+                text = {
+                    Column {
+                        LinearProgressIndicator(
+                            progress = { state.progress / 100f },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Text("${state.progress}%")
+                    }
+                },
+                confirmButton = { }
+            )
+        }
+        is UpdateState.Installing -> {
+            AlertDialog(
+                onDismissRequest = { },
+                title = { Text("Installing Update") },
+                text = { Text("Please wait...") },
+                confirmButton = { }
+            )
+        }
+        is UpdateState.Completed -> {
+            AlertDialog(
+                onDismissRequest = { },
+                title = { Text("Update Complete") },
+                text = { Text("The app will restart shortly.") },
+                confirmButton = { }
+            )
+        }
+        is UpdateState.Error -> {
+            AlertDialog(
+                onDismissRequest = { 
+                    UpdateManager.getInstance().checkForUpdate()
+                },
+                title = { Text("Update Error") },
+                text = { Text(state.message) },
+                confirmButton = {
+                    TextButton(onClick = { 
+                        UpdateManager.getInstance().checkForUpdate()
+                    }) { Text("Retry") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { 
+                        UpdateManager.getInstance().checkForUpdate()
+                    }) { Text("Dismiss") }
+                }
+            )
+        }
+        else -> { }
     }
 }
 

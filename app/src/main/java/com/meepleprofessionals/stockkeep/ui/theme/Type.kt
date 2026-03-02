@@ -1,4 +1,4 @@
-package com.funkymonkey.stockkeep.ui.theme
+package com.meepleprofessionals.stockkeep.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

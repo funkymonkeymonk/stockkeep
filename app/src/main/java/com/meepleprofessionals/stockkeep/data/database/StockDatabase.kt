@@ -1,10 +1,10 @@
-package com.funkymonkey.stockkeep.data.database
+package com.meepleprofessionals.stockkeep.data.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.funkymonkey.stockkeep.data.model.StockItem
+import com.meepleprofessionals.stockkeep.data.model.StockItem
 
 @Database(entities = [StockItem::class], version = 1, exportSchema = false)
 abstract class StockDatabase : RoomDatabase() {

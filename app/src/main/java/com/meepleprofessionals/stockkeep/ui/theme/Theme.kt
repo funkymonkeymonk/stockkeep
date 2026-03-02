@@ -1,4 +1,4 @@
-package com.funkymonkey.stockkeep.ui.theme
+package com.meepleprofessionals.stockkeep.ui.theme
 
 import android.app.Activity
 import android.os.Build

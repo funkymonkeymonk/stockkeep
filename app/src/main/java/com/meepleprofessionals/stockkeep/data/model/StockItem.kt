@@ -1,4 +1,4 @@
-package com.funkymonkey.stockkeep.data.model
+package com.meepleprofessionals.stockkeep.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

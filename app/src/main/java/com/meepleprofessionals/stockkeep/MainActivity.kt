@@ -1,4 +1,4 @@
-package com.funkymonkey.stockkeep
+package com.meepleprofessionals.stockkeep
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.funkymonkey.stockkeep.ui.screens.StockKeepApp
-import com.funkymonkey.stockkeep.ui.theme.StockKeepTheme
+import com.meepleprofessionals.stockkeep.ui.screens.StockKeepApp
+import com.meepleprofessionals.stockkeep.ui.theme.StockKeepTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

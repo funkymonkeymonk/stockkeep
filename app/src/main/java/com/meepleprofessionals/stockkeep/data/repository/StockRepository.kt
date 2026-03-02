@@ -1,7 +1,7 @@
-package com.funkymonkey.stockkeep.data.repository
+package com.meepleprofessionals.stockkeep.data.repository
 
-import com.funkymonkey.stockkeep.data.database.StockItemDao
-import com.funkymonkey.stockkeep.data.model.StockItem
+import com.meepleprofessionals.stockkeep.data.database.StockItemDao
+import com.meepleprofessionals.stockkeep.data.model.StockItem
 import kotlinx.coroutines.flow.Flow
 
 class StockRepository(private val stockItemDao: StockItemDao) {

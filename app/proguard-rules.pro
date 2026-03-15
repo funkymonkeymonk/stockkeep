@@ -3,7 +3,7 @@
 # proguardFiles setting in build.gradle.
 
 # Keep Room entities
--keep class com.funkymonkey.stockkeep.data.model.** { *; }
+-keep class com.meepleprofessionals.stockkeep.data.model.** { *; }
 
 # Keep ViewModels
 -keep class * extends androidx.lifecycle.ViewModel { *; }

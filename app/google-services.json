@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "67560479707",
+    "project_id": "stockkeep-9ada6",
+    "storage_bucket": "stockkeep-9ada6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67560479707:android:65fd0522b0ba36ffcf25fe",
+        "android_client_info": {
+          "package_name": "com.meepleprofessionals.stockkeep"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfTWkO9TyWVU4D0w_uaC5McaeRFPArkLQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

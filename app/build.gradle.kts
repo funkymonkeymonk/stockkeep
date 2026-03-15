@@ -2,14 +2,15 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.funkymonkey.stockkeep"
+    namespace = "com.meepleprofessionals.stockkeep"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.funkymonkey.stockkeep"
+        applicationId = "com.meepleprofessionals.stockkeep"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -21,9 +22,19 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file(System.getenv("KEYSTORE_FILE") ?: "stockkeep.keystore")
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+            keyAlias = System.getenv("KEY_ALIAS") ?: ""
+            keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -66,6 +77,12 @@ dependencies {
 
     // ML Kit Barcode
     implementation(libs.mlkit.barcode.scanning)
+    
+    // Firebase App Distribution for in-app updates
+    implementation("com.google.firebase:firebase-appdistribution:16.0.0-beta13")
+    
+    // Lifecycle components
+    implementation("androidx.lifecycle:lifecycle-process:2.7.0")
 
     // Testing
     testImplementation(libs.junit)

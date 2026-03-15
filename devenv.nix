@@ -1,21 +1,27 @@
-{ pkgs, lib, config, ... }:
+{ pkgs, ... }:
 
 {
-  env.GREET = "Welcome to StockKeep Android Development";
+  android = {
+    enable = true;
+    platforms.version = [ "34" ];
+    systemImageTypes = [ "google_apis" ];
+    abis = [ "x86_64" ];
+    buildTools.version = [ "34.0.0" ];
+    cmdLineTools.version = "11.0";
+    emulator = {
+      enable = true;
+    };
+    systemImages.enable = true;
+    extras = [ ];
+  };
 
-  # Enable shell scripts
   packages = with pkgs; [
     git
     openjdk17
-    android-sdk
-    android-sdkCommandLineToolsOnly
-    emulator
     scrcpy
   ];
 
-  env.ANDROID_HOME = "${config.android-sdk-sdkcmdline-tools-only}/libexec/android-sdk";
-  env.ANDROID_SDK_ROOT = "${config.android-sdk-sdkcmdline-tools-only}/libexec/android-sdk";
-  env.JAVA_HOME = "${lib.mkDefault pkgs.openjdk17}";
+
   env.ANDROID_EMULATOR_HOME = "$HOME/.android/avd";
   env.ANDROID_AVD_HOME = "$HOME/.android/avd";
 
@@ -34,26 +40,35 @@
   # Emulator helper scripts
   scripts.emu-list.exec = ''
     echo "Available Android Virtual Devices:"
-    emulator -list-avds 2>/dev/null || echo "No AVDs found. Run 'emu-create' to create one."
+    avdmanager list avd 2>/dev/null || echo "No AVDs found. Run 'emu-create' to create one."
   '';
 
   scripts.emu-create.exec = ''
     echo "Creating new Android Virtual Device..."
     echo "This will create a Pixel 7 API 34 device"
     
-    # Download system image if not present
-    sdkmanager "system-images;android-34;google_apis;x86_64" 2>/dev/null || echo "Note: sdkmanager not available, you may need to download system images manually"
+    avdmanager create avd --force --name "StockKeep-Device" --package "system-images;android-34;google_apis;x86_64" --device "pixel_7"
     
-    # Create AVD
-    avdmanager create avd -n "StockKeep-Device" -d "pixel_7" -k "system-images;android-34;google_apis;x86_64" --force 2>/dev/null || echo "AVD creation may require manual setup with: avdmanager create avd"
-    
-    echo ""
-    echo "AVD 'StockKeep-Device' created (or attempted)"
-    echo "Run 'emu-start' to launch the emulator"
+    if [ $? -eq 0 ]; then
+      echo ""
+      echo "AVD 'StockKeep-Device' created successfully!"
+      echo "Run 'emu-start' to launch the emulator"
+    else
+      echo ""
+      echo "AVD creation failed. You may need to install system images first:"
+      echo "  sdkmanager 'system-images;android-34;google_apis;x86_64'"
+    fi
   '';
 
   scripts.emu-start.exec = ''
     echo "Starting Android Emulator..."
+    
+    # Check if emulator exists
+    if ! avdmanager list avd | grep -q "StockKeep-Device"; then
+      echo "No StockKeep-Device found. Run 'emu-create' first."
+      exit 1
+    fi
+    
     echo "Waiting for device to boot (this may take a minute)..."
     
     # Start emulator in background
@@ -110,7 +125,8 @@
 
   enterShell = ''
     echo "Android SDK: $ANDROID_HOME"
-    java -version
+    echo "Java: $JAVA_HOME"
+    java -version 2>&1 | head -1
     echo ""
     echo "Design commands available:"
     echo "  design-build    - Build debug APK for design testing"
@@ -123,7 +139,7 @@
     echo "  emu-deploy      - Build and deploy to emulator"
     echo "  emu-stop        - Stop the emulator"
     echo ""
-    echo "Quick start: emu-start && emu-mirror (in another terminal)"
+    echo "Quick start: emu-create && emu-start && emu-mirror"
     echo "Documentation: docs/tutorials/getting-started-with-design.md"
   '';
 

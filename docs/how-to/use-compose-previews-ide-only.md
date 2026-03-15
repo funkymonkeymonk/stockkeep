@@ -1,6 +1,8 @@
-# How to Use Compose Previews
+# How to Use Compose Previews (IDE-Only)
 
-This guide shows you how to use Jetpack Compose Previews effectively for visual design work in StockKeep.
+**⚠️ Note:** This guide requires Android Studio or IntelliJ IDEA. StockKeep's primary workflow uses the terminal and emulator without an IDE. See [Use the Android Emulator from Terminal](./use-emulator-terminal.md) for the main approach.
+
+This guide shows you how to use Jetpack Compose Previews effectively for visual design work in StockKeep if you choose to use an IDE.
 
 ## Overview
 
@@ -8,8 +10,8 @@ Compose Previews let you see your UI without running the app. They update instan
 
 ## Prerequisites
 
-- Android Studio Arctic Fox or newer
-- StockKeep project open
+- Android Studio Arctic Fox or newer, OR IntelliJ IDEA Community Edition
+- StockKeep project open in the IDE
 - Familiarity with basic Compose syntax
 
 ## Basic Preview

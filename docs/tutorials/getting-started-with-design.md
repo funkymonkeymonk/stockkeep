@@ -1,151 +1,242 @@
 # Getting Started with Visual Design
 
-In this tutorial, you will learn how to use Compose Previews to iterate on StockKeep's visual design. By the end, you'll have a working understanding of how to make visual changes and see them instantly without deploying to a device.
+In this tutorial, you will learn how to iterate on StockKeep's visual design using the Android emulator and terminal-based tools. By the end, you'll have a working understanding of how to make visual changes and test them on a running emulator without using Android Studio.
 
 ## What You'll Learn
 
-- How to use `@Preview` annotations to see your UI in real-time
-- How to preview different themes (light and dark mode)
+- How to run the Android emulator from the terminal
+- How to mirror the emulator screen to your desktop
+- How to deploy and test your app instantly
 - How to iterate on colors, typography, and layouts
-- How to capture design states for review
 
 ## Prerequisites
 
-- Android Studio installed
-- StockKeep project opened in Android Studio
+- StockKeep project cloned
 - devenv environment activated (`devenv shell`)
+- Terminal with ghostty (or similar)
 
-## Step 1: Open the Theme Files
+## Two Approaches to Visual Design
 
-First, let's examine the current design system:
+StockKeep supports two workflows for visual design:
 
-1. In Android Studio, open `app/src/main/java/com/example/stockkeep/ui/theme/Color.kt`
-2. Notice the current color palette:
-   - Purple40, PurpleGrey40, Pink40 (light theme)
-   - Purple80, PurpleGrey80, Pink80 (dark theme)
+1. **Terminal + Emulator** (this tutorial) - Use command-line tools and emulator
+2. **IDE + Compose Previews** - Use Android Studio or IntelliJ IDEA with @Preview annotations
 
-These are the colors you'll customize.
+This tutorial focuses on the **terminal-based approach** which doesn't require a heavy IDE.
 
-## Step 2: Add Your First Preview
+## Step 1: Create an Android Virtual Device (AVD)
 
-Open `app/src/main/java/com/example/stockkeep/ui/screens/InventoryScreen.kt`.
+First, you need to create a virtual Android device to run your app:
 
-At the bottom of the file (after the last function), add this preview:
+```bash
+emu-create
+```
+
+This creates a Pixel 7 device with API 34.
+
+**Note:** If this fails, you may need to download system images manually using `sdkmanager`.
+
+## Step 2: Start the Emulator
+
+Launch the emulator in the background:
+
+```bash
+emu-start
+```
+
+You'll see output like:
+```
+Emulator started successfully!
+Device ID: emulator-5554
+```
+
+The emulator window will open (but we're going to use scrcpy for a better experience).
+
+## Step 3: Mirror the Screen with scrcpy
+
+In a **new terminal** (also with `devenv shell`):
+
+```bash
+emu-mirror
+```
+
+This opens a window showing your emulator screen with:
+- Better performance than the emulator window
+- Keyboard and mouse support
+- The emulator screen turns off to save resources
+
+**Tip:** Keep this running while you work. Use Ctrl+C to stop mirroring (emulator keeps running).
+
+## Step 4: Deploy StockKeep
+
+Build and deploy the app to the running emulator:
+
+```bash
+emu-deploy
+```
+
+This:
+1. Builds the debug APK
+2. Installs it on the emulator
+3. Launches the app automatically
+
+You should see StockKeep open in the scrcpy window!
+
+## Step 5: Make Visual Changes
+
+Now let's customize the app appearance:
+
+### Change Colors
+
+Open `app/src/main/java/com/example/stockkeep/ui/theme/Color.kt` in your editor (vim, nano, helix, etc.):
+
+```bash
+# Example with vim
+vim app/src/main/java/com/example/stockkeep/ui/theme/Color.kt
+```
+
+Change the primary color:
+```kotlin
+// From:
+val Purple40 = Color(0xFF6650a4)
+
+// To:
+val Purple40 = Color(0xFF1976D2)  // Blue
+```
+
+Save the file.
+
+### Redeploy and See Changes
+
+```bash
+emu-deploy
+```
+
+The app will rebuild and relaunch with your new color!
+
+## Step 6: Iteration Workflow
+
+Here's your rapid iteration loop:
+
+1. **Edit** - Change colors, typography, or layouts in your editor
+2. **Deploy** - Run `emu-deploy` to build and install
+3. **View** - See changes instantly in the scrcpy window
+4. **Repeat** - Keep iterating
+
+**Time per iteration:** ~10-15 seconds
+
+## Step 7: Testing Different States
+
+Create different preview scenarios by modifying your code:
+
+### Test with Different Data
+
+Edit `InventoryScreen.kt` to show different test data:
 
 ```kotlin
-@Preview(
-    name = "Inventory Screen - Light",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO
+// Add test items to see how UI handles them
+val testItems = listOf(
+    InventoryItem(1, "Wireless Mouse", "123", 5, 29.99),
+    InventoryItem(2, "Long Product Name That Might Overflow", "456", 999, 199.99),
+    InventoryItem(3, "Keyboard", "789", 0, 79.99)  // Out of stock
 )
-@Composable
-fun InventoryScreenPreview() {
-    StockKeepTheme {
-        InventoryScreen()
-    }
-}
 ```
 
-## Step 3: See the Preview
+### Test Dark Mode
 
-1. Look for the split panel on the right side of Android Studio
-2. Click "Split" or "Design" to see the preview
-3. You should see the Inventory screen rendered
+Enable dark mode on the emulator:
+1. Open Settings app in the emulator
+2. Go to Display → Dark theme
+3. Or use adb: `adb shell cmd uimode night yes`
 
-**Try this:** Change one of the colors in `Color.kt` and watch the preview update instantly.
+## Step 8: Stop the Emulator
 
-## Step 4: Preview Multiple States
+When you're done:
 
-Add more previews to see different states:
-
-```kotlin
-@Preview(
-    name = "Inventory Screen - Dark",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-@Composable
-fun InventoryScreenDarkPreview() {
-    StockKeepTheme(darkTheme = true) {
-        InventoryScreen()
-    }
-}
+```bash
+emu-stop
 ```
 
-Now you can see both light and dark versions side by side.
-
-## Step 5: Preview Individual Components
-
-Create a preview for a specific UI component. Add this to `InventoryScreen.kt`:
-
-```kotlin
-@Preview(name = "Item Card")
-@Composable
-fun InventoryItemCardPreview() {
-    StockKeepTheme {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Sample Item",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                Text(
-                    text = "5 in stock • $10.00",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-    }
-}
-```
-
-This helps you focus on one component at a time.
-
-## Step 6: Change Colors and See Results
-
-Let's customize the theme colors:
-
-1. Open `Color.kt`
-2. Change `Purple40` to a different color, for example:
-   ```kotlin
-   val Purple40 = Color(0xFF2196F3)  // Blue
-   ```
-3. Watch all previews update immediately
-
-## Step 7: Export Preview Images
-
-To save a preview for sharing or documentation:
-
-1. Right-click on any preview
-2. Select "Copy Image" or "Save Image"
-3. Save to your project folder
+Or simply close the scrcpy window and emulator window.
 
 ## What You've Learned
 
 You now know how to:
-- Create Compose Previews
-- Preview in light and dark modes
-- Focus on individual components
-- Iterate on colors and see instant results
-- Export preview images
+- Create and manage Android Virtual Devices from the terminal
+- Run the emulator and mirror its screen
+- Deploy apps rapidly without an IDE
+- Iterate on visual design quickly
+- Test different themes and states
+
+## Available Commands
+
+All these commands work from your terminal:
+
+```bash
+emu-list        # List available Android Virtual Devices
+emu-create      # Create a new AVD
+emu-start       # Start the emulator
+emu-mirror      # Mirror emulator screen (scrcpy)
+emu-deploy      # Build and deploy to emulator
+emu-stop        # Stop the emulator
+design-build    # Build debug APK only
+```
 
 ## Next Steps
 
-- Learn more advanced preview options: [How-to: Use Compose Previews](../how-to/use-compose-previews.md)
-- Customize the full app theme: [How-to: Customize App Theme](../how-to/customize-app-theme.md)
-- Understand the workflow philosophy: [Explanation: Visual Design Workflow](../explanation/visual-design-workflow.md)
+- Customize the app theme: [How-to: Customize App Theme](../how-to/customize-app-theme.md)
+- Learn about Compose Previews (IDE-based): [How-to: Use Compose Previews](../how-to/use-compose-previews.md)
+- Understand the design workflow: [Explanation: Visual Design Workflow](../explanation/visual-design-workflow.md)
+
+## Using an IDE Instead
+
+If you later want Compose Previews with instant visual feedback:
+
+1. Install **IntelliJ IDEA Community Edition** (free, lighter than Android Studio)
+2. Open the StockKeep project
+3. Add `@Preview` annotations to your Composables
+4. See instant previews in the IDE
+
+The emulator workflow you learned here still works alongside the IDE!
 
 ## Troubleshooting
 
-**Preview not showing?**
-- Make sure the file compiles without errors
-- Try Build → Clean Project, then Build → Rebuild Project
-- Check that you're using `@Preview` from `androidx.compose.ui.tooling.preview`
+**Emulator won't start?**
+- Check if virtualization is enabled in BIOS (Intel VT-x or AMD-V)
+- Try: `emulator -avd StockKeep-Device -gpu swiftshader_indirect` (software rendering)
 
-**Preview shows "Rendering Problems"?**
-- Some Preview features require a device/emulator to be connected
-- Try using `showSystemUi = false` in the Preview annotation
+**scrcpy won't connect?**
+- Make sure emulator is running: `adb devices` should show the device
+- Try disconnecting/reconnecting: `adb kill-server && adb start-server`
+
+**App won't install?**
+- Check build output: `./gradlew assembleDebug`
+- Uninstall first: `adb uninstall com.example.stockkeep`
+- Check for errors: `adb logcat | grep AndroidRuntime`
+
+**Changes not showing?**
+- Make sure you're saving files
+- Do a clean build: `./gradlew clean`
+- Check that you're editing the right file
+
+## Pro Tips
+
+1. **Use two terminals**: One for editing, one for deploying
+2. **Keep scrcpy running**: No need to restart it between deploys
+3. **Use adb logcat**: Watch logs in real-time: `adb logcat -s StockKeep:D`
+4. **Screenshot**: scrcpy supports screenshots: click the camera icon
+5. **Record video**: scrcpy can record: `scrcpy --record file.mp4`
+
+## Alternative: Physical Device
+
+If you have an Android phone:
+
+```bash
+# Enable USB debugging on your phone first
+adb devices  # Should show your device
+./gradlew installDebug
+adb shell monkey -p com.example.stockkeep -c android.intent.category.LAUNCHER 1
+scrcpy  # Mirror your physical device
+```
+
+This is even faster than the emulator!

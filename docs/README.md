@@ -2,6 +2,8 @@
 
 Welcome to the StockKeep documentation. This documentation follows the [Diataxis framework](https://diataxis.fr/), organizing content into four distinct types based on user needs.
 
+**Important:** This is a terminal-based workflow - no IDE required! All design and development is done from the command line using the Android emulator and scrcpy for screen mirroring.
+
 ## Documentation Structure
 
 ```
@@ -15,9 +17,9 @@ docs/
 
 ## Quick Start
 
-**New to visual design in StockKeep?** Start here:
+**New to StockKeep?** Start here:
 1. [Tutorial: Getting Started with Visual Design](tutorials/getting-started-with-design.md)
-2. [How-to: Use Compose Previews](how-to/use-compose-previews.md)
+2. [How-to: Use the Android Emulator from Terminal](how-to/use-emulator-terminal.md)
 3. [Example: Card Redesign](workflow-examples/card-redesign-example.md)
 
 **Need specific information?**
@@ -33,7 +35,7 @@ Tutorials take you through a learning experience. They are designed for users wh
 
 **Question answered:** "Can you teach me to...?"
 
-- [Getting Started with Visual Design](tutorials/getting-started-with-design.md) - Learn Compose Previews from scratch
+- [Getting Started with Visual Design](tutorials/getting-started-with-design.md) - Learn terminal-based design workflow
 
 ### How-to Guides (Goal-oriented)
 
@@ -41,8 +43,8 @@ How-to guides help you accomplish a specific task. They assume you know what you
 
 **Question answered:** "How do I...?"
 
-- [Use Compose Previews](how-to/use-compose-previews.md) - Master preview annotations
-- [Customize App Theme](how-to/customize-app-theme.md) - Change colors, typography, shapes
+- [Use the Android Emulator from Terminal](how-to/use-emulator-terminal.md) - Run emulator without Android Studio
+- [Customize App Theme](how-to/customize-app-theme.md) - Change colors, typography, and shapes
 
 ### Reference (Information-oriented)
 
@@ -64,7 +66,7 @@ Explanations clarify and illuminate. They provide context and background.
 
 Practical, end-to-end examples of design workflows:
 
-- [Card Redesign Example](workflow-examples/card-redesign-example.md) - Complete card redesign workflow
+- [Card Redesign Example](workflow-examples/card-redesign-example.md) - Complete card redesign workflow using terminal
 - [Complete Theme Example](workflow-examples/complete-theme-example.md) - Building a custom theme from scratch
 
 ## Available Commands
@@ -72,11 +74,37 @@ Practical, end-to-end examples of design workflows:
 When in the devenv shell, the following commands are available:
 
 ```bash
-# Show preview workflow information
-design-preview
+# Building
+design-build                    # Build debug APK
 
-# Build debug APK for design testing
-design-build
+# Emulator Management
+emu-list                        # List Android Virtual Devices
+emu-create                      # Create new AVD (Pixel 7 API 34)
+emu-start                       # Start the emulator
+emu-mirror                      # Mirror screen with scrcpy
+emu-deploy                      # Build and deploy to emulator
+emu-stop                        # Stop the emulator
+
+# Direct Gradle
+./gradlew assembleDebug         # Build APK
+./gradlew installDebug          # Install on emulator/device
+```
+
+## Quick Workflow
+
+```bash
+# Terminal 1: Start emulator and mirror screen
+devenv shell
+emu-start        # Start emulator (keep running)
+# In another terminal:
+emu-mirror       # See the screen
+
+# Terminal 2: Edit and deploy
+devenv shell
+vim app/src/main/java/com/example/stockkeep/ui/theme/Color.kt
+./gradlew installDebug
+adb shell monkey -p com.example.stockkeep -c android.intent.category.LAUNCHER 1
+# See changes in scrcpy window!
 ```
 
 ## Navigation Guide
@@ -84,11 +112,45 @@ design-build
 | I want to... | Go to... |
 |-------------|----------|
 | Learn the basics | [Getting Started Tutorial](tutorials/getting-started-with-design.md) |
-| Understand @Preview options | [How-to: Use Compose Previews](how-to/use-compose-previews.md) |
+| Run the emulator | [How-to: Use Emulator from Terminal](how-to/use-emulator-terminal.md) |
 | Change app colors | [How-to: Customize App Theme](how-to/customize-app-theme.md) |
-| Look up annotation parameters | [Design Tools Reference](reference/design-tools.md) |
-| Understand why we use Compose | [Visual Design Workflow](explanation/visual-design-workflow.md) |
+| Look up commands | [Design Tools Reference](reference/design-tools.md) |
+| Understand the workflow | [Visual Design Workflow](explanation/visual-design-workflow.md) |
 | See a complete example | [Workflow Examples](workflow-examples/) |
+
+## Why Terminal-Based?
+
+StockKeep uses a **terminal-first approach** for several reasons:
+
+- **No IDE required** - Edit with vim, helix, or any editor you prefer
+- **Lightweight** - No heavy Android Studio installation
+- **Fast iteration** - Build and deploy from the command line
+- **Screen mirroring** - Use scrcpy for a responsive, high-quality preview
+- **Version control friendly** - Everything is text and scripts
+
+The trade-off is you don't get Compose Previews (which require an IDE), but you get a faster, lighter workflow that many developers prefer.
+
+## What About Compose Previews?
+
+Compose Previews are a feature of Android Studio/IntelliJ IDEA that show UI instantly as you code. Since we're avoiding IDEs:
+
+- **Instead of Previews:** We use the emulator + scrcpy
+- **Iteration speed:** 10-15 seconds (build + deploy) vs instant
+- **Trade-off:** Slightly slower but much lighter toolchain
+
+If you later decide you want Previews, you can install IntelliJ IDEA Community Edition and add @Preview annotations alongside the terminal workflow.
+
+## Requirements
+
+- macOS or Linux
+- Terminal (ghostty, kitty, alacritty, etc.)
+- devenv (installed via Nix)
+- Text editor (vim, helix, emacs, etc.)
+
+**Not required:**
+- Android Studio
+- IntelliJ IDEA
+- Any IDE
 
 ## Contributing to Documentation
 
@@ -104,7 +166,8 @@ When adding new documentation:
 
 - [Material Design 3 Guidelines](https://m3.material.io/)
 - [Jetpack Compose Documentation](https://developer.android.com/jetpack/compose)
-- [Compose Previews Guide](https://developer.android.com/jetpack/compose/tooling/previews)
+- [scrcpy Documentation](https://github.com/Genymobile/scrcpy)
+- [ADB Documentation](https://developer.android.com/studio/command-line/adb)
 - [Diataxis Framework](https://diataxis.fr/)
 
 ## Questions?

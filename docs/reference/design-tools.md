@@ -2,29 +2,120 @@
 
 Reference documentation for visual design tools and commands in the StockKeep project.
 
+**Note:** This is a terminal-based workflow. All commands run from the shell - no IDE required.
+
 ## devenv Commands
 
 The following commands are available in the devenv shell for design workflows:
 
-### `design-preview`
+### Build Commands
 
-Displays information about the Compose Preview workflow.
+#### `design-build`
 
-```bash
-$ design-preview
-Starting Compose Preview workflow...
-Open Android Studio and use @Preview annotations
-See docs/tutorials/getting-started-with-design.md for details
-```
-
-### `design-build`
-
-Builds a debug APK for design testing on devices.
+Builds a debug APK for design testing.
 
 ```bash
 $ design-build
 Building debug APK for design review...
 APK location: app/build/outputs/apk/debug/app-debug.apk
+
+To test on emulator:
+  1. emu-start    (if not running)
+  2. emu-mirror   (to see the screen)
+  3. ./gradlew installDebug
+```
+
+### Emulator Commands
+
+#### `emu-list`
+
+List available Android Virtual Devices.
+
+```bash
+$ emu-list
+Available Android Virtual Devices:
+StockKeep-Device
+```
+
+#### `emu-create`
+
+Create a new Android Virtual Device.
+
+```bash
+$ emu-create
+Creating new Android Virtual Device...
+This will create a Pixel 7 API 34 device
+
+AVD 'StockKeep-Device' created
+Run 'emu-start' to launch the emulator
+```
+
+#### `emu-start`
+
+Start the Android emulator.
+
+```bash
+$ emu-start
+Starting Android Emulator...
+Waiting for device to boot (this may take a minute)...
+
+Emulator started successfully!
+Device ID: emulator-5554
+```
+
+**Options used:**
+- `-no-snapshot-load` - Fresh boot
+- `-no-boot-anim` - Skip boot animation
+
+**Manual start:**
+```bash
+emulator -avd StockKeep-Device -gpu swiftshader_indirect  # Software rendering
+emulator -avd StockKeep-Device -wipe-data                 # Factory reset
+```
+
+#### `emu-mirror`
+
+Mirror emulator screen to desktop using scrcpy.
+
+```bash
+$ emu-mirror
+Starting screen mirroring with scrcpy...
+Use Ctrl+C to stop mirroring (emulator keeps running)
+```
+
+**Default options:**
+- `--turn-screen-off` - Turn off device screen while mirroring
+- `--stay-awake` - Keep device awake
+- `--window-title "StockKeep Preview"`
+
+**Manual scrcpy:**
+```bash
+scrcpy --max-size 1024                    # Smaller window
+scrcpy --fullscreen                       # Fullscreen mode
+scrcpy --record demo.mp4                  # Record screen
+scrcpy --bit-rate 4M                      # Lower quality/faster
+```
+
+#### `emu-deploy`
+
+Build and deploy to emulator.
+
+```bash
+$ emu-deploy
+Building and deploying to emulator...
+
+App deployed successfully!
+Launching StockKeep...
+```
+
+#### `emu-stop`
+
+Stop the emulator.
+
+```bash
+$ emu-stop
+Stopping emulator...
+Emulator stopped
 ```
 
 ## Project Structure
@@ -44,28 +135,56 @@ APK location: app/build/outputs/apk/debug/app-debug.apk
 | `app/src/main/java/.../ui/screens/InventoryScreen.kt` | Main inventory list | Cards, lists, floating action button |
 | `app/src/main/java/.../ui/screens/ScanScreen.kt` | Barcode scanner | Camera preview, scanning overlay |
 
-## Compose Preview Annotations
+## ADB Commands
 
-### @Preview Parameters
+Since you have the emulator running, you can use adb directly:
 
-| Parameter | Type | Description | Example |
-|-----------|------|-------------|---------|
-| `name` | String | Display name in preview panel | `"Light Theme"` |
-| `group` | String | Group related previews | `"Components"` |
-| `showBackground` | Boolean | Show theme background color | `true` |
-| `showSystemUi` | Boolean | Include status/navigation bars | `true` |
-| `widthDp` | Int | Preview width in dp | `360` |
-| `heightDp` | Int | Preview height in dp | `640` |
-| `fontScale` | Float | Text scaling factor | `1.5f` |
-| `uiMode` | Int | UI mode flags | `Configuration.UI_MODE_NIGHT_YES` |
-| `locale` | String | Locale for preview | `"es"` |
+### Device Management
 
-### UI Mode Constants
+```bash
+adb devices                          # List connected devices
+adb get-state                        # Check device state
+adb shell                            # Open shell on device
+adb push local.txt /sdcard/          # Copy file to device
+adb pull /sdcard/remote.txt ./       # Copy file from device
+```
 
-```kotlin
-Configuration.UI_MODE_NIGHT_NO      // Light theme
-Configuration.UI_MODE_NIGHT_YES     // Dark theme
-Configuration.UI_MODE_TYPE_NORMAL   // Normal mode
+### App Management
+
+```bash
+adb install app.apk                  # Install APK
+adb install -r app.apk               # Reinstall (keep data)
+adb uninstall com.example.stockkeep  # Uninstall
+adb shell pm clear com.example.stockkeep  # Clear app data
+adb shell am force-stop com.example.stockkeep  # Force stop
+```
+
+### Debugging
+
+```bash
+adb logcat                           # View all logs
+adb logcat -s StockKeep:D            # Filter by tag
+adb logcat -c                        # Clear logs
+adb bugreport                        # Full bug report
+```
+
+### UI Automation
+
+```bash
+adb shell input tap 500 500          # Tap screen
+adb shell input swipe 100 500 100 100  # Swipe
+adb shell input text "Hello"         # Type text
+adb shell input keyevent 4           # Press back button
+adb shell input keyevent 3           # Press home button
+```
+
+### System Settings
+
+```bash
+adb shell cmd uimode night yes       # Enable dark mode
+adb shell cmd uimode night no        # Disable dark mode
+adb shell wm density 320             # Change screen density
+adb shell wm density reset           # Reset density
 ```
 
 ## Material 3 Color Scheme
@@ -163,12 +282,14 @@ Configuration.UI_MODE_TYPE_NORMAL   // Normal mode
 
 ## Environment Variables
 
-Variables set by devenv for Android development:
+Variables set by devenv:
 
 | Variable | Value | Purpose |
 |----------|-------|---------|
 | `ANDROID_HOME` | SDK path | Android SDK location |
 | `ANDROID_SDK_ROOT` | SDK path | Android SDK root |
+| `ANDROID_EMULATOR_HOME` | `~/.android/avd` | AVD storage location |
+| `ANDROID_AVD_HOME` | `~/.android/avd` | AVD storage location |
 | `JAVA_HOME` | JDK path | Java home directory |
 | `GREET` | Welcome message | Shell greeting |
 
@@ -180,6 +301,7 @@ Variables set by devenv for Android development:
 ./gradlew assembleDebug          # Build debug APK
 ./gradlew assembleRelease        # Build release APK
 ./gradlew installDebug           # Install on connected device
+./gradlew bundleRelease          # Create Play Store bundle
 ```
 
 ### Verification Tasks
@@ -197,26 +319,13 @@ Variables set by devenv for Android development:
 ./gradlew cleanBuildCache        # Clean build cache
 ```
 
-## Android Studio Shortcuts
+### Development Tasks
 
-### Preview Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+F9` / `Cmd+F9` | Build project |
-| `Shift+F10` / `Ctrl+R` | Run app |
-| `Shift+F9` / `Ctrl+D` | Debug app |
-| `Alt+Enter` | Quick fix |
-| `Ctrl+Shift+A` / `Cmd+Shift+A` | Find action |
-
-### Design Mode
-
-| Feature | Location |
-|---------|----------|
-| Split View | Right panel "Split" button |
-| Design View | Right panel "Design" button |
-| Code View | Right panel "Code" button |
-| Interactive Preview | Preview panel play button |
+```bash
+./gradlew build                  # Full build
+./gradlew check                  # Run all checks
+./gradlew tasks                  # List all available tasks
+```
 
 ## File Locations
 
@@ -240,6 +349,6 @@ Variables set by devenv for Android development:
 ## Related Documentation
 
 - [Getting Started with Visual Design](../tutorials/getting-started-with-design.md) - Tutorial
-- [How-to: Use Compose Previews](../how-to/use-compose-previews.md) - Preview guide
+- [How-to: Use the Android Emulator from Terminal](../how-to/use-emulator-terminal.md) - Emulator guide
 - [How-to: Customize App Theme](../how-to/customize-app-theme.md) - Theme customization
 - [Visual Design Workflow](../explanation/visual-design-workflow.md) - Philosophy

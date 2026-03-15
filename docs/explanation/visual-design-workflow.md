@@ -1,43 +1,67 @@
 # Visual Design Workflow
 
-This document explains the philosophy and rationale behind the visual design workflow for StockKeep.
+This document explains the philosophy and rationale behind the terminal-based visual design workflow for StockKeep.
 
-## Why Compose Previews?
+## Why Terminal-Based Design?
 
-Traditional mobile app design often separates design and development:
-1. Designers create mockups in Figma, Sketch, or Adobe XD
-2. Developers implement the designs in code
-3. Discrepancies emerge between design and implementation
-4. Back-and-forth iteration consumes time
+StockKeep uses a **terminal-first approach** to visual design, avoiding heavy IDEs while maintaining rapid iteration capabilities.
 
-**Compose Previews eliminate this gap.** They allow visual design to happen directly in code, with instant feedback and no translation layer.
+### The Traditional Problem
+
+Most Android development requires:
+1. **Android Studio** - Heavy IDE (several GB download)
+2. **Compose Previews** - IDE-only feature
+3. **Resource overhead** - Significant RAM/CPU usage
+4. **Context switching** - Between editor, IDE, and emulator
+
+### The Terminal Solution
+
+StockKeep's workflow:
+1. **Editor of choice** - vim, helix, emacs, or any text editor
+2. **Terminal emulator** - Run Android emulator from command line
+3. **Screen mirroring** - scrcpy for high-quality display
+4. **Rapid deployment** - One command to build and install
+
+This keeps you in your preferred environment while providing full visual feedback.
 
 ## The Code-As-Design Approach
 
 ### Single Source of Truth
 
-When you use Compose Previews, your design IS your implementation:
+Your design IS your implementation:
 
 - **Colors** defined in `Color.kt` are the actual app colors
 - **Typography** in `Type.kt` is the actual text rendering
 - **Layouts** in screen files are the actual UI structure
-- **Components** previewed are the actual production components
+- **Components** tested on emulator are production components
 
 This eliminates the "design handoff" problem where designs differ from implementation.
 
-### Immediate Feedback Loop
+### Feedback Loop
 
-Traditional workflow:
+Terminal-based workflow:
 ```
-Change color in design tool → Export → Review → Implement → Build → Test → (find issues) → Repeat
-```
-
-Compose Preview workflow:
-```
-Change color in code → See instantly in Preview → Adjust → Done
+Change color in code → Build (10s) → Deploy (2s) → See on emulator → Adjust → Repeat
 ```
 
-This compression of the feedback loop enables rapid iteration.
+Total iteration time: **~15 seconds**
+
+While slower than IDE previews (instant), this is:
+- Much faster than traditional design tools
+- Lighter than running a full IDE
+- More flexible (use any editor)
+- Fully version controlled
+
+### Tools in the Loop
+
+```
+┌─────────────┐    ┌──────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Editor    │───→│ Gradle Build │───→│   ADB       │───→│  Emulator   │
+│ (vim/helix) │    │ (./gradlew)  │    │ (install)   │    │ (scrcpy)    │
+└─────────────┘    └──────────────┘    └─────────────┘    └─────────────┘
+      ↑                                                      │
+      └────────────────── Iterate ──────────────────────────┘
+```
 
 ## Benefits for StockKeep
 
@@ -49,61 +73,82 @@ Inventory apps have repetitive UI patterns:
 - Scan interfaces with overlays
 - Data-dense displays
 
-Compose Previews let you:
+The terminal workflow lets you:
 - Perfect one card design, then replicate
 - Test with realistic inventory data
 - Verify readability with long product names
 - Ensure scanning UI works in both themes
+- Test on actual Android runtime (not preview simulation)
 
-### 2. Android-First Design
+### 2. Editor Freedom
 
-StockKeep is an Android-native app. Compose is the modern Android UI toolkit. Using Compose Previews ensures:
-- Designs respect Android conventions
-- Material 3 components used correctly
-- Accessibility features (TalkBack, font scaling) work
-- Dark mode implemented properly
+Use your preferred editor:
+- **vim/neovim** - Modal editing, powerful macros
+- **helix** - Post-modal editor with built-in LSP
+- **emacs** - Extensible, customizable environment
+- **VS Code** (terminal) - If you prefer GUI editors
+- **Any editor** - No lock-in to a specific IDE
 
-### 3. No Additional Tools Required
+### 3. Lightweight Environment
 
-Unlike design tools that require:
-- Separate licenses (Figma, Adobe)
-- Installation and updates
-- Export/import workflows
-- Design system maintenance
+Compare resource usage:
 
-Compose Previews are:
-- Built into Android Studio
-- Always in sync with code
-- Version controlled with Git
-- Free and open source
+| Component | Android Studio | Terminal + Emulator |
+|-----------|----------------|---------------------|
+| **Memory** | 4-8 GB | 2-4 GB |
+| **Disk** | 5-10 GB | 1-2 GB |
+| **Startup** | Slow | Fast |
+| **Updates** | Frequent, large | Minimal |
+
+### 4. Version Control Integration
+
+All design iterations are:
+- Plain text (Kotlin code)
+- Git-tracked
+- Diff-able
+- Reviewable in PRs
+- Revertible
 
 ## Trade-offs and Limitations
 
 ### What You Gain
 
-- **Speed**: Instant visual feedback
-- **Accuracy**: Design equals implementation
-- **Collaboration**: Designers can work directly in the codebase
+- **Lightweight**: No heavy IDE to run
+- **Flexibility**: Use any editor
+- **Accuracy**: Test on real Android runtime
 - **Versioning**: Design changes tracked in Git
-- **Testing**: Preview multiple states easily
+- **Speed**: Faster than traditional design tools
+- **Automation**: Easy to script and automate
 
 ### What You Lose
 
+- **Instant previews**: 15s iteration vs instant (IDE)
+- **Compose Previews**: @Preview annotations don't work without IDE
+- **Visual debugger**: No IDE debugging tools
 - **Vector editing**: No pen tool or bezier curves
-- **Asset creation**: Still need tools for complex icons/illustrations
-- **Multi-platform previews**: Android-only (though Compose Multiplatform exists)
+- **Asset creation**: Still need tools for complex icons
 - **Stakeholder review**: Non-technical stakeholders may prefer design tool links
+
+### When to Consider an IDE
+
+Even with this workflow, you might want an IDE for:
+- **Debugging complex issues** - Visual debugger is helpful
+- **Compose Previews** - If you need instant visual feedback
+- **Refactoring** - IDE refactoring tools are powerful
+- **Profiling** - Memory/CPU analysis
+
+**Recommendation:** Start with terminal workflow. Add IDE later if needed.
 
 ### When to Use External Tools
 
-Even with Compose Previews, you might still want:
+Even with the terminal workflow, you might still want:
 
 1. **Penpot or Figma**: For initial concept exploration, stakeholder presentations, or complex illustrations
-2. **Vector editors**: For custom icons that require complex shapes
+2. **Vector editors**: For custom icons that require complex shapes (Inkscape)
 3. **Image editors**: For photo manipulation or raster assets
 
 For StockKeep specifically:
-- Use Compose Previews for 90% of design work (screens, components, themes)
+- Use terminal + emulator for 90% of design work (screens, components, themes)
 - Use external tools only for the app icon and any complex illustrations
 
 ## The Iterative Design Process
@@ -113,21 +158,39 @@ For StockKeep specifically:
 Establish the visual foundation:
 1. Define color palette in `Color.kt`
 2. Set typography scale in `Type.kt`
-3. Create a preview showing all theme elements
+3. Build and deploy to emulator
 4. Test in both light and dark modes
+
+**Commands:**
+```bash
+vim app/src/main/java/com/example/stockkeep/ui/theme/Color.kt
+emu-deploy
+# Check on emulator via scrcpy
+```
 
 ### Phase 2: Component Library (Day 2-3)
 
-Build reusable components with previews:
+Build reusable components and test on emulator:
 1. Inventory item card
 2. Scan button and overlay
 3. Form inputs (text fields, dropdowns)
 4. Empty states and loading indicators
 
 Each component gets:
-- Multiple state previews (normal, pressed, disabled)
-- Theme variant previews (light, dark)
-- Edge case previews (long text, zero quantity)
+- Tested with different data (normal, empty, error states)
+- Tested in both light and dark themes
+- Edge case testing (long text, zero quantity)
+
+**Commands:**
+```bash
+# Edit component
+vim app/src/main/java/com/example/stockkeep/ui/screens/InventoryScreen.kt
+
+# Deploy and test
+emu-deploy
+
+# Test different states by editing test data in code
+```
 
 ### Phase 3: Screen Assembly (Day 4-5)
 
@@ -138,19 +201,19 @@ Compose screens from components:
 4. Settings/preferences screen
 
 Each screen gets:
-- Full-screen previews
-- Interactive mode testing
-- Multiple device size previews
+- Full testing on emulator
+- Different device sizes (change emulator settings)
+- Real interaction testing
 
 ### Phase 4: Polish (Ongoing)
 
 Continuous refinement:
-1. Animation previews
+1. Animation tuning (test on emulator)
 2. Accessibility testing (font scaling, contrast)
 3. Edge case handling
 4. Performance optimization
 
-## Collaboration with Compose Previews
+## Collaboration with Terminal Workflow
 
 ### Designer + Developer Workflow
 
@@ -161,35 +224,60 @@ Continuous refinement:
 - Designer reviews build
 - Iterate
 
-**With Compose Previews:**
+**With Terminal Workflow:**
 - Designer checks out code
-- Adds `@Preview` annotations
-- Makes visual changes directly
+- Edits theme files with preferred editor
+- Runs `emu-deploy` to see changes
+- Takes screenshots with scrcpy
 - Submits PR with screenshots
 - Developer reviews code
 - Merge
 
 ### Sharing Design Progress
 
-Export previews for stakeholders:
-1. Right-click preview → Save Image
-2. Commit images to `docs/design-screenshots/`
-3. Reference in PR descriptions
-4. Include in documentation
+Capture screenshots for stakeholders:
+1. Use scrcpy's built-in screenshot tool
+2. Or use `adb shell screencap` command
+3. Commit images to `docs/design-screenshots/`
+4. Reference in PR descriptions
+5. Include in documentation
+
+**Commands:**
+```bash
+# Screenshot via adb
+adb shell screencap -p /sdcard/screen.png
+adb pull /sdcard/screen.png docs/design-screenshots/
+
+# Or use scrcpy's screenshot button (camera icon)
+```
 
 This creates a visual changelog of design evolution.
 
 ## Best Practices for This Workflow
 
-### 1. Preview-Driven Development
+### 1. Emulator-Driven Development
 
-Always start with a preview:
-```kotlin
-@Preview
-@Composable
-fun NewComponentPreview() {
-    // Build this first
-}
+Always test on emulator:
+```bash
+# After any visual change
+./gradlew installDebug
+adb shell monkey -p com.example.stockkeep -c android.intent.category.LAUNCHER 1
+```
+
+### 2. Two-Terminal Setup
+
+**Terminal 1** (Editor):
+```bash
+devenv shell
+vim app/src/.../Color.kt  # Edit
+emu-deploy               # Deploy
+```
+
+**Terminal 2** (Emulator):
+```bash
+devenv shell
+emu-start                # Start once
+emu-mirror               # Keep running
 ```
 
 Then implement the actual component.
@@ -205,10 +293,13 @@ Preview all states:
 
 ### 3. Theme Testing
 
-Always check both themes:
-```kotlin
-@Preview(name = "Light", uiMode = UI_MODE_NIGHT_NO)
-@Preview(name = "Dark", uiMode = UI_MODE_NIGHT_YES)
+Always check both themes on the emulator:
+```bash
+# Enable dark mode
+adb shell cmd uimode night yes
+
+# Disable dark mode  
+adb shell cmd uimode night no
 ```
 
 ### 4. Realistic Data
@@ -238,26 +329,28 @@ IconButton(
 
 ## Comparison with Alternatives
 
-### vs. Figma/Sketch
+### Terminal + Emulator vs. IDE (Android Studio)
 
-| Aspect | Compose Previews | Figma |
-|--------|-----------------|-------|
+| Aspect | Terminal + Emulator | IDE (Android Studio) |
+|--------|---------------------|---------------------|
+| **Iteration speed** | ~15 seconds | Instant (with Preview) |
+| **Resource usage** | Light (2-4 GB RAM) | Heavy (4-8 GB RAM) |
+| **Editor choice** | Any (vim, helix, emacs) | Fixed (IDE built-in) |
+| **Setup time** | Fast | Slow (large download) |
+| **Debugging** | CLI tools | Visual debugger |
+| **Compose Previews** | Not available | Available |
+| **Cost** | Free | Free |
+
+### Terminal + Emulator vs. Figma/Sketch
+
+| Aspect | Terminal + Emulator | Figma |
+|--------|---------------------|-------|
 | **Implementation** | Code is design | Separate handoff |
-| **Iteration speed** | Instant | Fast |
-| **Real data** | Native | Simulated |
+| **Iteration speed** | ~15 seconds | Fast (visual tool) |
+| **Real data** | Native (Android runtime) | Simulated |
 | **Developer learning** | Requires code | Visual only |
 | **Asset export** | Not needed | Required |
 | **Cost** | Free | Freemium/Paid |
-
-### vs. XML Layouts
-
-| Aspect | Compose Previews | XML |
-|--------|-----------------|-----|
-| **Preview fidelity** | High | Limited |
-| **Interactivity** | Full (Android Studio EE+) | None |
-| **Code coupling** | Integrated | Separate |
-| **Learning curve** | Kotlin required | XML learning |
-| **Modern features** | Full Material 3 | Partial |
 
 ## Future Possibilities
 
@@ -284,18 +377,22 @@ Emerging capabilities:
 
 ## Conclusion
 
-The Compose Preview workflow aligns with modern Android development best practices. It leverages the fact that StockKeep is a **Compose-native app** to make the design process:
+The terminal-based workflow provides a **lightweight, flexible approach** to Android UI design. It leverages StockKeep's **Compose-native architecture** while avoiding the overhead of a heavy IDE:
 
-- Faster (instant feedback)
-- More accurate (design equals code)
-- Better integrated (no tool switching)
-- More maintainable (version controlled)
+- **Lightweight** - No IDE required, use any editor
+- **Accurate** - Test on real Android runtime (emulator)
+- **Fast enough** - ~15 second iteration cycle
+- **Maintainable** - Everything version controlled
+- **Flexible** - Easy to automate and script
 
-For a data-driven inventory app with consistent UI patterns, this approach is ideal. It keeps the focus on user experience while maintaining the efficiency of working directly in the development environment.
+For a data-driven inventory app with consistent UI patterns, this approach strikes the right balance between iteration speed and tool simplicity. It keeps the focus on user experience while respecting developer preferences for lightweight tooling.
+
+**The bottom line:** You get 90% of the benefit of IDE previews with 10% of the resource cost.
 
 ## Related Documentation
 
 - [Getting Started with Visual Design](../tutorials/getting-started-with-design.md) - Tutorial
-- [How-to: Use Compose Previews](../how-to/use-compose-previews.md) - Practical guide
+- [How-to: Use the Android Emulator from Terminal](../how-to/use-emulator-terminal.md) - Emulator guide
 - [How-to: Customize App Theme](../how-to/customize-app-theme.md) - Theme customization
 - [Design Tools Reference](../reference/design-tools.md) - Technical reference
+- [How-to: Use Compose Previews (IDE-Only)](../how-to/use-compose-previews-ide-only.md) - If you later decide to use an IDE

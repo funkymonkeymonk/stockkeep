@@ -29,6 +29,11 @@ This tutorial focuses on the **terminal-based approach** which doesn't require a
 First, you need to create a virtual Android device to run your app:
 
 ```bash
+devenv tasks run setup:emulator
+```
+
+Or use the helper script:
+```bash
 emu-create
 ```
 
@@ -40,6 +45,11 @@ This creates a Pixel 7 device with API 34.
 
 Launch the emulator in the background:
 
+```bash
+devenv tasks run design:emulator
+```
+
+Or use the helper script:
 ```bash
 emu-start
 ```
@@ -72,6 +82,10 @@ This opens a window showing your emulator screen with:
 Build and deploy the app to the running emulator:
 
 ```bash
+# Using devenv tasks (recommended)
+devenv tasks run design:test
+
+# Or use the helper script
 emu-deploy
 ```
 
@@ -109,6 +123,10 @@ Save the file.
 ### Redeploy and See Changes
 
 ```bash
+# Using devenv tasks (with file watching - skips if no changes)
+devenv tasks run design:test
+
+# Or use the helper script
 emu-deploy
 ```
 
@@ -119,11 +137,13 @@ The app will rebuild and relaunch with your new color!
 Here's your rapid iteration loop:
 
 1. **Edit** - Change colors, typography, or layouts in your editor
-2. **Deploy** - Run `emu-deploy` to build and install
+2. **Deploy** - Run `devenv tasks run design:test` to build and install
 3. **View** - See changes instantly in the scrcpy window
 4. **Repeat** - Keep iterating
 
 **Time per iteration:** ~10-15 seconds
+
+**💡 Tip:** The `design:test` task uses file watching, so if you haven't changed any source files, it will skip the build and just deploy!
 
 ## Step 7: Testing Different States
 
@@ -170,7 +190,36 @@ You now know how to:
 
 ## Available Commands
 
-All these commands work from your terminal:
+### Using devenv Tasks (Recommended)
+
+devenv tasks provide intelligent workflow automation with file watching:
+
+```bash
+# Design Workflow
+devenv tasks run design:build    # Build debug APK (skips if no changes)
+devenv tasks run design:deploy   # Deploy to emulator
+devenv tasks run design:test     # Build + deploy together
+devenv tasks run design:emulator # Start emulator
+
+# Development Workflow
+devenv tasks run dev:clean       # Clean build artifacts
+devenv tasks run dev:build       # Build debug APK
+devenv tasks run dev:test        # Run unit tests
+devenv tasks run dev:lint        # Run linting
+devenv tasks run dev:check       # Full check suite (clean, build, test, lint)
+
+# Delivery Workflow
+devenv tasks run delivery:build  # Build release APK
+devenv tasks run delivery:bundle # Build release AAB
+
+# Setup
+devenv tasks run setup:emulator  # Create emulator
+devenv tasks run setup:check     # Check environment
+```
+
+### Helper Scripts (Alternative)
+
+For quick access without typing full task commands:
 
 ```bash
 emu-list        # List available Android Virtual Devices

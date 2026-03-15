@@ -1,3 +1,4 @@
+@file:Suppress("UnsafeOptInUsageError")
 package com.meepleprofessionals.stockkeep.ui.screens
 
 import android.Manifest

@@ -218,21 +218,20 @@ fun InventoryScreen(
                 title = { Text("Downloading Update") },
                 text = {
                     Column {
-                        LinearProgressIndicator(
-                            progress = { state.progress / 100f },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Text("${state.progress}%")
+                        if (state.progress > 0) {
+                            LinearProgressIndicator(
+                                progress = state.progress / 100f,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Text("${state.progress}%")
+                        } else {
+                            LinearProgressIndicator(
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Text("Starting download...")
+                        }
                     }
                 },
-                confirmButton = { }
-            )
-        }
-        is UpdateState.Installing -> {
-            AlertDialog(
-                onDismissRequest = { },
-                title = { Text("Installing Update") },
-                text = { Text("Please wait...") },
                 confirmButton = { }
             )
         }

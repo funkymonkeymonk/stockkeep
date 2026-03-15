@@ -80,6 +80,9 @@ dependencies {
     
     // Firebase App Distribution for in-app updates
     implementation("com.google.firebase:firebase-appdistribution:16.0.0-beta13")
+    
+    // Lifecycle components
+    implementation("androidx.lifecycle:lifecycle-process:2.7.0")
 
     // Testing
     testImplementation(libs.junit)
